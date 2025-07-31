@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>טופס הערכת תלמידים</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+        }
+        input[type="radio"]:focus + label {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+            border-radius: 9999px;
+        }
+        .scale-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .radio-group { display: flex; justify-content: center; gap: 0.5rem; }
+        @media (min-width: 640px) { .radio-group { gap: 1rem; } }
+        option.completed { color: #16a34a; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">טופס הערכת תלמידים</h1>
+            <p class="text-lg text-gray-600 mt-2">מערכת פשוטה ונוחה למילוי הערכות</p>
+        </header>
+
+        <!-- Introduction for teachers -->
+        <div class="bg-blue-50 border-r-4 border-blue-500 p-4 mb-8 rounded-r-lg shadow-sm">
+            <h3 class="font-bold text-blue-800 text-lg">מורים יקרים, שימו לב!</h3>
+            <p class="text-gray-700 mt-2">
+                למילוי טופס זה חשיבות מכרעת בעתידם של התלמידים. הנתונים שתזינו מהווים גורם משמעותי בשיבוצם ליחידות הטכנולוגיות השונות בצה"ל.
+                הערכה כנה ומדויקת תסייע לנו להתאים לכל תלמיד את התפקיד ההולם ביותר את כישוריו, ותפתח בפניו דלתות להזדמנויות משמעותיות בשירות הצבאי ובעתיד.
+                <br>תודה על שיתוף הפעולה!
+            </p>
+        </div>
+
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-200">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label for="class-select" class="block text-lg font-semibold text-gray-700 mb-2">1. בחירת כיתה:</label>
+                    <select id="class-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <option value="">-- יש לבחור כיתה --</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="student-select" class="block text-lg font-semibold text-gray-700 mb-2">2. בחירת תלמיד/ה:</label>
+                    <select id="student-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" disabled>
+                        <option value="">-- יש לבחור תלמיד/ה --</option>
+                    </select>
+                </div>
+            </div>
+
+            <form id="evaluation-form" class="hidden">
+                <div id="form-title" class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-blue-700"></h2>
+                </div>
+                <div class="space-y-8"></div>
+                <div class="mt-10">
+                     <label for="general-notes" class="block text-lg font-semibold text-gray-700 mb-2">הערות כלליות (רשות):</label>
+                     <textarea id="general-notes" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="נקודות לחיזוק, התנהגות חריגה, או כל הערה נוספת..."></textarea>
+                </div>
+                <div class="mt-10 text-center">
+                    <button type="submit" id="submit-button" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform hover:scale-105 w-40">
+                        שלח הערכה
+                    </button>
+                </div>
+            </form>
+            
+            <div id="success-message" class="hidden text-center p-6 bg-green-100 border-2 border-green-500 rounded-2xl">
+                <h2 class="text-2xl font-bold text-green-800">ההערכה נשלחה בהצלחה!</h2>
+                <p class="text-gray-700 mt-2">הטופס אופס וכעת ניתן להעריך את התלמיד/ה הבא/ה.</p>
+                <button id="reset-button" class="mt-4 bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition">
+                    הערכה חדשה
+                </button>
+            </div>
+        </div>
+         <footer class="text-center mt-8 text-gray-500">
+            <p>&copy; 2024 - נוצר עבור תכנית kodcode</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- הגדרות ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySFrtoASdVKoKf0klsL-2vbXRtBYQJaoZCvBYomlJ3cZ-HDtfK6KhdkobUQyNrq8v_/exec"; 
+
+        const studentData = {
+            "כיתת תכנות 1 י-ם": [
+                { id: "322683962", name: "פנחס מנחם ארליך" }, { id: "326055233", name: "חיים ספיר" }, { id: "326080025", name: "אפרים גולוב" }, { id: "211846894", name: "ישראל ורבלום" }, { id: "209118165", name: "דוד יעקבסון" }, { id: "214287484", name: "אלימלך וייץ" }, { id: "326017761", name: "יהודה לוינר" }, { id: "326036951", name: "נחמן עפר דוד לרינה" }, { id: "325606481", name: "יעקב שמש" }, { id: "212317317", name: "מנחם מענדל קזידו" }, { id: "212454011", name: "דני גולדבלט" }, { id: "212797740", name: "שלום ברמן" }, { id: "213426729", name: "ישראל דנינו" }, { id: "314817206", name: "יששכר דוד ממון" }, { id: "315210542", name: "ישראל שוודרון" }, { id: "315592527", name: "אלימלך ארליך" }, { id: "321424855", name: "ישעיה קליין" }, { id: "324139625", name: "אברהם בוקשפן" }, { id: "325542611", name: "יאיר פרל" }, { id: "326153442", name: "דוד פופוביץ" }, { id: "212529374", name: "יהודה אשר בר ששת" }, { id: "323114843", name: "אלחנן דרייפוס" }, { id: "316611649", name: "מנחם מענדל הרשקופ" }, { id: "327097614", name: "יהודה פרוירובסקי" }
+            ],
+            "תכנות 2 י-ם": [
+                { id: "326294220", name: "נדב אמיתי" }, { id: "213275399", name: "משה דויטש" }, { id: "323776427", name: "אפרים פרטיג" }, { id: "324074533", name: "אורי מרק" }, { id: "206937625", name: "יחיאל נפתלי שפרינגר" }, { id: "208099457", name: "בנימין ניימן" }, { id: "211316260", name: "ברוך לביא" }, { id: "211502943", name: "דניאל זמצובסקי" }, { id: "212035687", name: "אריה דורלכר" }, { id: "315446146", name: "גבריאל מיארא" }, { id: "323058917", name: "יוסף מורד" }, { id: "324251842", name: "איציק וינגרטן" }, { id: "325291052", name: "שמשון דוד בריטמן" }, { id: "326203841", name: "יוסף רבינוביץ" }, { id: "209428713", name: "דניאל גולדברג" }, { id: "323057844", name: "אליהו מלמוד" }, { id: "323112912", name: "מאיר פיסקרוב" }, { id: "326004025", name: "איתמר לוי" }, { id: "321659724", name: "זאב אריאל גורדון" }, { id: "322533530", name: "שלמה כהן" }, { id: "322994898", name: "מוטי יוזביץ" }, { id: "325089506", name: "אסף אשוול" }, { id: "347466765", name: "יהודה כהן" }, { id: "207111675", name: "חנניה יוסף רודרמן" }, { id: "208618140", name: "משולם איזנבך" }
+            ],
+            "תכנות 1 פת": [
+                { id: "212365779", name: "יהונתן בלוי" }, { id: "322876111", name: "אוהב אהרון צובארה" }, { id: "212826135", name: "יהודה אריה ברדיאנסקי" }, { id: "315466219", name: "אלעזר קובל" }, { id: "212326045", name: "דוב בער אלכמיסטר" }, { id: "208157867", name: "ישראל שטרן" }, { id: "315083733", name: "אברהם פישר" }, { id: "315136838", name: "ישעיהו מנדלמן" }, { id: "315545491", name: "יוסף שפירא" }, { id: "318392487", name: "אלעזר אדלר" }, { id: "318739448", name: "יאיר מרדכי גרינברג" }, { id: "323052902", name: "יעקב אלחנן כהן" }, { id: "326256484", name: "אליה מיסטרייל" }, { id: "326671302", name: "אליהו רוטנשטרייך" }, { id: "326619814", name: "פנחס מוסיף" }, { id: "211450200", name: "יוסי לרר" }, { id: "207897794", name: "יאיר זאוי" }, { id: "206207821", name: "אורי מילר" }, { id: "211380738", name: "ישי אוסי" }, { id: "325881399", name: "יהונתן מיכאל חבוטובסקי" }, { id: "209164953", name: "צמח דוד עמרוסי" }, { id: "214357410", name: "אריאל הלל ניימן" }, { id: "322961996", name: "חיים פרזאן" }, { id: "325159390", name: "יוסף יצחק שובל" }, { id: "325426096", name: "יוסף אביטן" }, { id: "325035095", name: "דוד קוביוף" }, { id: "214985400", name: "משה מרום" }, { id: "209118553", name: "צבי סקוטובסקי" }
+            ],
+            "תכנות 2 פת": [
+                { id: "209088053", name: "נתנאל עוזרי" }, { id: "211740774", name: "מאיר ג'רבי" }, { id: "212627277", name: "פנחס ליפשיץ" }, { id: "214309734", name: "מאיר דוד לבקוביץ" }, { id: "326615044", name: "חיים גרינפלד" }, { id: "209422872", name: "דניאל פליישמן" }, { id: "206849010", name: "מיכאל קעטבי" }, { id: "322381633", name: "יהודה פרידלר" }, { id: "213067010", name: "רון בן יוסף" }, { id: "213499734", name: "דניאל לוי" }, { id: "316532068", name: "אברהם כהן" }, { id: "325276319", name: "ברק כמיסה" }, { id: "324180694", name: "יעקב יוסף גרשוני" }, { id: "324490242", name: "מיכאל כלפון" }, { id: "212416358", name: "אלעזר מייערס" }, { id: "314653825", name: "שמואל מרנץ" }, { id: "316214766", name: "יוסף חיים גלבשטיין" }, { id: "214494742", name: "יהונתן סעדה" }, { id: "209265933", name: "יוסף יצחק תקתוק" }, { id: "213289390", name: "מיכאל פרידמן" }, { id: "323887315", name: "יעקב אליאסף" }, { id: "314958950", name: "יעקב תפילין" }, { id: "209165257", name: "אביתר בן עמי" }, { id: "214006918", name: "אחיה שמעון ביטון" }, { id: "214617979", name: "עידן סנאנס" }, { id: "318601986", name: "יחיאל לוי" }, { id: "324041540", name: "יהודה גרשום ברק" }, { id: "324257518", name: "יוסף יצחק אוחיון" }, { id: "325151827", name: "חגי קהלת" }, { id: "214778961", name: "ישעיהו עקיבא פיינר" }
+            ],
+            "פטור י-ם": [
+                { id: "317760171", name: "נחמיה רוזנברג" }, { id: "209495571", name: "שלמה אליאס" }, { id: "313344376", name: "דוד פורסט" }, { id: "214375941", name: "פנחס וייס" }, { id: "227519600", name: "חיים אפללו" }, { id: "314699323", name: "יוסי קיפר" }, { id: "323957555", name: "מני (פנחס) דיסקינד" }, { id: "207293002", name: "חיים מרדכי ולס" }, { id: "322534348", name: "משה אלמליח" }, { id: "324645126", name: "דוד שפילר" }, { id: "325196962", name: "ישראל מאיר ארלנגר" }, { id: "342743846", name: "גד ויינבלט" }, { id: "329969612", name: "אביאל ועקנין" }, { id: "326254356", name: "מתניה מדולסי" }, { id: "209643808", name: "אריאל כליפה" }, { id: "318406691", name: "אברהם צורף" }, { id: "315364174", name: "מתי ישורון" }, { id: "316592278", name: "דניאל פירוב" }, { id: "212012314", name: "עקיבא שישא" }, { id: "206568107", name: "אלעזר יעקובסון" }
+            ],
+            "פטור פת": [
+                { id: "213126527", name: "דניאל סעידוב" }, { id: "322998881", name: "רפאל סעידוב" }, { id: "326015724", name: "יונה מילר" }, { id: "208795658", name: "שי נחמד" }, { id: "315292904", name: "מאיר משה אויש" }, { id: "204806889", name: "אהרון סגל" }, { id: "205368319", name: "יהודה פריימן" }, { id: "207816489", name: "יעקב ויכסבלום" }, { id: "207989906", name: "בנימין בורשטיין" }, { id: "315329995", name: "רועי אברבוך" }, { id: "209642891", name: "רפאל כליפה" }, { id: "213116569", name: "דניאל דויטש" }, { id: "325460749", name: "יובל ברגמן" }, { id: "213507742", name: "יוסף רכדינר" }, { id: "207827924", name: "אריאל יזרלביץ" }, { id: "324942259", name: "יהודה גבריאלי" }, { id: "325744597", name: "אודי רייכברג" }, { id: "326190626", name: "דוד רכדינר" }, { id: "315584144", name: "אור אוראל" }, { id: "212220644", name: "ישי קווה" }, { id: "315605808", name: "נפתלי הורביץ" }
+            ],
+            "מסלול ירוק": [
+                { id: "209700798", name: "בנימין שוראקי" }, { id: "328607304", name: "יוסי קובן" }, { id: "347662413", name: "דוד טרופי" }
+            ]
+        };
+
+        const evaluationCriteria = ["רמת מוטיבציה", "עמידה בנהלים", "קבלת סמכות", "הבנת חומר הלימוד", "שואל שאלות הבנה", "נעזר בעמיתים", "פסיבי- מחכה שיידגמו אותו", "יכולת עבודה בצוות", "האם עוזר לחברים", "יכולת למידה עצמית", "סקרנות", "יכולת לקבל ביקורת", "מגדיל ראש", "דירוג ביחס לכיתה"];
+        const STATUS_STORAGE_KEY = 'evaluationStatus';
+
+        const classSelect = document.getElementById('class-select');
+        const studentSelect = document.getElementById('student-select');
+        const evaluationForm = document.getElementById('evaluation-form');
+        const formTitle = document.getElementById('form-title').querySelector('h2');
+        const formContent = evaluationForm.querySelector('.space-y-8');
+        const successMessage = document.getElementById('success-message');
+        const resetButton = document.getElementById('reset-button');
+        const submitButton = document.getElementById('submit-button');
+
+        const radioBgColors = ['bg-red-500', 'bg-orange-400', 'bg-amber-400', 'bg-yellow-400', 'bg-lime-500', 'bg-green-500'];
+        const radioTextColors = ['text-white', 'text-white', 'text-gray-800', 'text-gray-800', 'text-gray-800', 'text-white'];
+
+        function getEvaluationStatus() { const status = localStorage.getItem(STATUS_STORAGE_KEY); return status ? JSON.parse(status) : {}; }
+        function saveEvaluationStatus(statusObject) { localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(statusObject)); }
+
+        function initializeApp() {
+            const classes = Object.keys(studentData).sort();
+            classes.forEach(className => { const option = document.createElement('option'); option.value = className; option.textContent = className; classSelect.appendChild(option); });
+            
+            evaluationCriteria.forEach((criterion, index) => { 
+                const criterionId = `criterion-${index}`; 
+                const element = document.createElement('div'); 
+                element.className = 'bg-gray-100 p-4 rounded-lg border'; 
+                let html = `<div class="scale-container"><label class="text-base sm:text-lg font-semibold text-gray-800">${criterion}</label><div class="radio-group" role="radiogroup" aria-labelledby="${criterionId}-label">`; 
+                for (let i = 1; i <= 6; i++) { 
+                    html += `<div class="flex items-center"><input type="radio" id="${criterionId}-${i}" name="${criterionId}" value="${i}" class="sr-only" required><label for="${criterionId}-${i}" class="cursor-pointer w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 border-transparent ${radioBgColors[i-1]} ${radioTextColors[i-1]} transition-all font-bold text-lg">${i}</label></div>`; 
+                } 
+                html += `</div></div><div class="flex justify-between text-xs sm:text-sm text-gray-500 mt-2 px-1"><span>נמוך</span><span>גבוה</span></div>`; 
+                element.innerHTML = html; 
+                formContent.appendChild(element); 
+            });
+            
+            formContent.addEventListener('change', (e) => { 
+                if (e.target.type === 'radio') { 
+                    const groupName = e.target.name; 
+                    document.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => { 
+                        radio.nextElementSibling.classList.remove('ring-4', 'ring-offset-2', 'ring-blue-500'); 
+                    }); 
+                    e.target.nextElementSibling.classList.add('ring-4', 'ring-offset-2', 'ring-blue-500');
+                } 
+            });
+        }
+
+        function populateStudents() {
+            const selectedClass = classSelect.value;
+            const currentStudentSelection = studentSelect.value;
+            const evaluationStatus = getEvaluationStatus();
+            studentSelect.innerHTML = '<option value="">-- יש לבחור תלמיד/ה --</option>';
+            evaluationForm.classList.add('hidden');
+            if (selectedClass && studentData[selectedClass]) {
+                const students = [...studentData[selectedClass]].sort((a, b) => a.name.localeCompare(b.name));
+                students.forEach(student => { const option = document.createElement('option'); option.value = student.id; if (evaluationStatus[student.name]) { option.textContent = `✅ ${student.name}`; option.classList.add('completed'); } else { option.textContent = student.name; } studentSelect.appendChild(option); });
+                studentSelect.disabled = false;
+                if (students.find(s => s.id === currentStudentSelection)) {
+                    studentSelect.value = currentStudentSelection;
+                }
+            } else { studentSelect.disabled = true; }
+        }
+
+        function showEvaluationForm() {
+            const selectedStudentId = studentSelect.value;
+            const selectedClass = classSelect.value;
+            if (selectedStudentId && selectedClass) {
+                const student = studentData[selectedClass].find(s => s.id === selectedStudentId);
+                if (student) {
+                    formTitle.textContent = `הערכה עבור: ${student.name}`;
+                    evaluationForm.reset();
+                    document.querySelectorAll('input[type="radio"]').forEach(radio => { 
+                        radio.nextElementSibling.classList.remove('ring-4', 'ring-offset-2', 'ring-blue-500'); 
+                    });
+                    evaluationForm.classList.remove('hidden');
+                    successMessage.classList.add('hidden');
+                }
+            } else { evaluationForm.classList.add('hidden'); }
+        }
+        
+        function resetFullForm() {
+            evaluationForm.reset();
+            document.querySelectorAll('input[type="radio"]').forEach(radio => { 
+                radio.nextElementSibling.classList.remove('ring-4', 'ring-offset-2', 'ring-blue-500');
+            });
+            evaluationForm.classList.add('hidden');
+            successMessage.classList.add('hidden');
+            classSelect.value = "";
+            studentSelect.innerHTML = '<option value="">-- יש לבחור תלמיד/ה --</option>';
+            studentSelect.disabled = true;
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            if (SCRIPT_URL === "") {
+                alert("שגיאה: יש להגדיר את כתובת הסקריפט (SCRIPT_URL) בקוד תחילה.");
+                return;
+            }
+
+            const selectedClass = classSelect.value;
+            const selectedStudentId = studentSelect.value;
+            const student = studentData[selectedClass].find(s => s.id === selectedStudentId);
+
+            if (!student) {
+                alert("שגיאה: לא נבחר תלמיד.");
+                return;
+            }
+
+            const evaluationData = { 
+                class: selectedClass, 
+                studentName: student.name, 
+                studentId: student.id,
+                evaluationDate: new Date().toISOString(), 
+                scores: {}, 
+                notes: document.getElementById('general-notes').value 
+            };
+
+            const formData = new FormData(event.target);
+            for (let [key, value] of formData.entries()) { const criterionIndex = key.split('-')[1]; const criterionName = evaluationCriteria[criterionIndex]; evaluationData.scores[criterionName] = parseInt(value, 10); }
+            
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 inline-block text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>שולח...`;
+
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(evaluationData) })
+                .then(() => {
+                    const currentStatus = getEvaluationStatus();
+                    currentStatus[student.name] = true;
+                    saveEvaluationStatus(currentStatus);
+                    evaluationForm.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                    populateStudents();
+                })
+                .catch(error => {
+                    console.error('Error sending data:', error);
+                    alert('אירעה שגיאה בשליחת הנתונים. אנא בדוק את חיבור האינטרנט ונסה שוב.');
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        classSelect.addEventListener('change', populateStudents);
+        studentSelect.addEventListener('change', showEvaluationForm);
+        evaluationForm.addEventListener('submit', handleFormSubmit);
+        resetButton.addEventListener('click', resetFullForm);
+    </script>
+</body>
+</html>
